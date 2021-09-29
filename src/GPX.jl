@@ -24,9 +24,9 @@ function read(filename; tz=localzone())
 end
 
 function read(filenames::AbstractVector)
-  df = vcat([read(f) for f ∈ filenames]...)
+  df = vcat(read.(f)...)
   df.filename = PooledArray(df.filename)
-  sort!(df, [:time])
+  sort!(df, :time)
 end
 
 end # module

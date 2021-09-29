@@ -48,7 +48,7 @@ function read(filename; mindepth=1.0, minmaxdepth=5.0)
   df
 end
 
-read(filenames::AbstractVector) = vcat([read(f) for f ∈ filenames]...)
+read(filenames::AbstractVector) = sort!(vcat(read.(f)...), :time)
 
 function read(row::DataFrameRow)
   df = DataFrame(
