@@ -4,8 +4,10 @@ import Printf: @printf
 import Plots: @recipe, @series
 import Dates: Dates, unix2datetime, DateTime
 import TimeZones: localzone, ZonedDateTime, astimezone, @tz_str
+import DataFrames: DataFrame, leftjoin
+import OrderedCollections: OrderedDict
 
-export cached, AOI, distance, minute, minutes, second, seconds, dts, @dts_str
+export cached, AOI, distance, minute, minutes, second, seconds, dts, @dts_str, xleftjoin, closest
 export LLA, ZonedDateTime
 
 ### caching with JLD2 files
@@ -97,4 +99,28 @@ Base.isapprox(t1::ZonedDateTime, t2::ZonedDateTime; atol=10seconds) = abs(t2 - t
 function prettyprint(io::IO, x::ZonedDateTime)
   zone = x.zone.offset.std.value == 28800 ? "SGT" : string(x.zone)
   print(io, Dates.format(x, "yyyy-mm-dd HH:MM:SS"), " ", zone)
+end
+
+### dataframe join utils
+
+function closest(a, b; atol=Inf64)
+  Δab = abs.(a .- b)
+  ndx = argmin(Δab)
+  Δab[ndx] ≤ atol && return ndx
+  nothing
+end
+
+closest(; atol) = (a, b) -> closest(a, b; atol)
+
+function xleftjoin(df1, df2, on, cols; compare=isequal, find=(a, b)->findfirst((compare).(a, b)))
+  df3 = DataFrame()
+  for row1 ∈ eachrow(df1)
+    ndx = find(row1[on], df2[!,on])
+    if ndx !== nothing
+      data = OrderedDict(pairs(df2[ndx,cols]))
+      data[:__key] = row1[on]
+      push!(df3, data; cols=:union)
+    end
+  end
+  leftjoin(df1, df3; on = on=>:__key)
 end
