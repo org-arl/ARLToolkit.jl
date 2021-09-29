@@ -21,12 +21,12 @@ function read(filename, fmt, filters=nothing; limit=nothing)
   for (lno, line) ∈ enumerate(eachline(filename))
     cols = split(line, fmt.delimiter)
     length(cols) == length(fmt.columns) || continue
-    entry = NamedTuple(first(key) => last(key)(value) for (key, value) ∈ zip(fmt.columns, cols))
+    entry = OrderedDict(first(key) => last(key)(value) for (key, value) ∈ zip(fmt.columns, cols))
     if filters !== nothing
       filters isa AbstractVector || (filters = [filters])
       for f1 ∈ filters
         rv = f1(entry)
-        if rv isa NamedTuple
+        if rv isa AbstractDict
           entry = rv
         elseif rv === nothing || rv === false
           entry = nothing
@@ -37,18 +37,17 @@ function read(filename, fmt, filters=nothing; limit=nothing)
       end
       entry === nothing && continue
     end
-    push!(df, entry; cols=:union)
+    push!(df, NamedTuple(entry); cols=:union)
     limit !== nothing && size(df, 1) ≥ limit && break
   end
   df
 end
 
 function Message(clazz)
-  e -> begin
-    m = match(r"^(.+): ?\w+ ?\[(.*)\]:? ?(.*)$", e.text)
+  data -> begin
+    m = match(r"^(.+): ?\w+ ?\[(.*)\]:? ?(.*)$", data[:text])
     m === nothing && return
     m[1] == clazz || return
-    data = OrderedDict(pairs(e))
     delete!(data, :text)
     data[:clazz] = clazz
     for kv ∈ split(m[2], ' ')
@@ -69,7 +68,7 @@ function Message(clazz)
       end
     end
     m[3] === nothing || m[3] == "" || (data[:extra] = m[3])
-    NamedTuple(data)
+    data
   end
 end
 
