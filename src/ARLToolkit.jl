@@ -1,6 +1,6 @@
 module ARLToolkit
 
-export AIS, GPX, CTD, Logs
+export AIS, GPX, CTD, Logs, Bathymetry
 export UnetLogs, Message, bathy
 
 include("utils.jl")
