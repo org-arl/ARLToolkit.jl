@@ -1,7 +1,7 @@
 import JLD2
 import Geodesy: LLA, euclidean_distance
 import Printf: @printf
-import Plots: @recipe, @series
+import Plots: @recipe, @series, RecipesBase
 import Dates: Dates, unix2datetime, DateTime
 import TimeZones: localzone, ZonedDateTime, astimezone, @tz_str
 import DataFrames: DataFrame, leftjoin

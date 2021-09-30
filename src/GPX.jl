@@ -10,7 +10,7 @@ function read(filename; tz=localzone())
   if isdir(filename)
     filenames = String[]
     for f ∈ readdir(filename; join=true)
-      endswith(lowercase(f), ".gpx") || push!(filenames, f)
+      endswith(lowercase(f), ".gpx") && push!(filenames, f)
     end
     return read(filenames)
   end
@@ -24,7 +24,7 @@ function read(filename; tz=localzone())
 end
 
 function read(filenames::AbstractVector)
-  df = vcat(read.(f)...)
+  df = vcat(read.(filenames)...)
   df.filename = PooledArray(df.filename)
   sort!(df, :time)
 end
