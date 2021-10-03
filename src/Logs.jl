@@ -2,6 +2,7 @@ module Logs
 
 import DataFrames: DataFrame
 import OrderedCollections: OrderedDict
+import PooledArrays: PooledArray
 import ..ARLToolkit: dts
 
 struct LogFormat
@@ -37,10 +38,19 @@ function read(filename, fmt, filters=nothing; limit=nothing)
       end
       entry === nothing && continue
     end
+    entry[:filename] = filename
+    entry[:lno] = lno
     push!(df, NamedTuple(entry); cols=:union)
     limit !== nothing && size(df, 1) ≥ limit && break
   end
+  df.filename = PooledArray(df.filename)
   df
+end
+
+function read(filenames::AbstractVector, fmt, filters=nothing)
+  df = vcat([read(filename, fmt, filters) for filename ∈ filenames]...)
+  df.filename = PooledArray(df.filename)
+  sort!(df, :time)
 end
 
 function Message(clazz)
