@@ -13,10 +13,15 @@ export LLA, ZonedDateTime
 ### caching with JLD2 files
 
 function cached(f, filename)
-  isfile(filename) && return JLD2.load(filename) |> values |> first
-  df = f()
-  JLD2.@save filename df
-  df
+  if isfile(filename)
+    return JLD2.jldopen(filename) do f
+      JLD2.read(f, "df")
+    end
+  else
+    df = f()
+    JLD2.@save filename df
+    return df
+  end
 end
 
 ### Geodesy utils
@@ -117,7 +122,7 @@ function xleftjoin(df1, df2, on, cols; compare=isequal, find=(a, b)->findfirst((
   for row1 ∈ eachrow(df1)
     ndx = find(row1[on], df2[!,on])
     if ndx !== nothing
-      data = OrderedDict(pairs(df2[ndx,cols]))
+      data = OrderedDict{Symbol,Any}(pairs(df2[ndx,cols]))
       data[:__key] = row1[on]
       push!(df3, data; cols=:union)
     end
