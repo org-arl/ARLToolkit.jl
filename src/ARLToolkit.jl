@@ -1,7 +1,7 @@
 module ARLToolkit
 
 export AIS, GPX, CTD, Logs, Bathymetry
-export UnetLogs, Message, bathy
+export UnetLogs, bathy
 
 include("utils.jl")
 include("AIS.jl")
@@ -11,7 +11,6 @@ include("Logs.jl")
 include("Bathymetry.jl")
 
 import .Logs: UnetLogs
-import .Logs: Message
 import .Bathymetry: bathy
 
 function __init__()
