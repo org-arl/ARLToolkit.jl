@@ -1,6 +1,6 @@
 module ARLToolkit
 
-export AIS, GPX, CTD, Logs, Bathymetry
+export AIS, GPX, CTD, Logs, Bathymetry, BLAS
 export UnetLogs, bathy
 
 include("utils.jl")
@@ -9,6 +9,7 @@ include("GPX.jl")
 include("CTD.jl")
 include("Logs.jl")
 include("Bathymetry.jl")
+include("BLAS.jl")
 
 import .Logs: UnetLogs
 import .Bathymetry: bathy
