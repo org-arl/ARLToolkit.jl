@@ -18,13 +18,13 @@ import .Plots: @recipe, @series, RecipesBase
   end
 end
 
-@recipe function plot(x::Vector{LLA{T}}) where T
+@recipe function plot(x::AbstractVector{<:LLA})
   @series begin
     [v.lon for v ∈ x], [v.lat for v ∈ x]
   end
 end
 
-@recipe function plot(x::LLA{T}) where T
+@recipe function plot(x::LLA)
   @series begin
     [x.lon], [x.lat]
   end
