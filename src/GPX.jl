@@ -1,6 +1,7 @@
-module GPX
 
-import GPX: read_gpx_file
+module GPXFile
+
+import ..GPX
 import DataFrames: DataFrame
 import Geodesy: LLA
 import TimeZones: astimezone, localzone
@@ -14,7 +15,7 @@ function read(filename; tz=localzone())
     end
     return read(filenames)
   end
-  gpx = read_gpx_file(filename)
+  gpx = GPX.read_gpx_file(filename)
   length(gpx.tracks) > 1 && throw(ErrorException("More than one tracks in GPX file"))
   length(gpx.tracks[1].segments) > 1 && throw(ErrorException("More than one segments in GPX file"))
   p = gpx.tracks[1].segments[1].points
