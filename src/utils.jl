@@ -1,6 +1,6 @@
 import JLD2
 import FileIO
-import Geodesy: LLA, euclidean_distance
+import Geodesy: LLA, euclidean_distance, ENUfromLLA, wgs84, LLAfromENU, ENU
 import Printf: @printf
 import Dates: Dates, unix2datetime, DateTime
 import TimeZones: localzone, ZonedDateTime, astimezone, @tz_str
@@ -8,7 +8,7 @@ import DataFrames: DataFrame, leftjoin
 import OrderedCollections: OrderedDict
 
 export cached, AOI, distance, minute, minutes, second, seconds, dts, @dts_str, xleftjoin, closest
-export LLA, ZonedDateTime
+export LLA, ZonedDateTime, geo2pos, pos2geo
 
 ### caching with JLD2 files
 
@@ -66,7 +66,34 @@ end
 
 distance(p1::LLA, p2::LLA) = euclidean_distance(p1, p2)
 
-prettyprint(io::IO, x::LLA) = @printf(io, "%0.6f°%c %0.6f°%c", abs(x.lat), x.lat < 0 ? 'S' : 'N', abs(x.lon), x.lon < 0 ? 'W' : 'E')
+function prettyprint(io::IO, x::LLA)
+  @printf(io, "%0.6f°%c %0.6f°%c", abs(x.lat), x.lat < 0 ? 'S' : 'N', abs(x.lon), x.lon < 0 ? 'W' : 'E')
+  iszero(x.alt) || @printf(io, " %+0.3fm", x.alt)
+end
+
+"""
+    geo2pos(geo::LLA, origin::LLA)
+
+Convert latitude/longitude to local coordinates. If altitude information
+is non-zero, the returned position vector is a 3-vector, otherwise a 2-vector.
+"""
+function geo2pos(geo::LLA, origin::LLA)
+  pos = ENUfromLLA(origin, wgs84)(geo)[1:3]
+  geo.alt == 0.0 && (pos = pos[1:2])
+  pos
+end
+
+"""
+    pos2geo(pos::AbstractArray{<:Real}, origin::LLA)
+
+Convert local coordinates to latitude/longitude. The input may be a 2-vector
+or a 3-vector. If the input is a 2-vector, the altitude is assumed to be zero.
+"""
+function pos2geo(pos::AbstractArray{<:Real}, origin::LLA)
+  length(pos) == 2 && (pos = vcat(pos, zero(eltype(pos))))
+  length(pos) == 3 || throw(ArgumentError("Bad position vector"))
+  LLAfromENU(origin, wgs84)(ENU(pos))
+end
 
 ### datetime conversions
 
