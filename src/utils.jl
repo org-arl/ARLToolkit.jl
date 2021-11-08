@@ -35,25 +35,30 @@ end
 # set environment variable GEOAPIFY_APIKEY to auto-download maps (see https://www.geoapify.com)
 # see https://apidocs.geoapify.com/docs/maps/map-tiles/ for list of available styles
 
-function AOI(topleft::LLA{Float64}, bottomright::LLA{Float64}; style="osm-bright", width=1024)
+function AOI(topleft::LLA{Float64}, bottomright::LLA{Float64}; style="osm-bright", width=1024, cachedir=nothing)
   mapimg = nothing
-  if "GEOAPIFY_APIKEY" ∈ keys(ENV)
-    apikey = ENV["GEOAPIFY_APIKEY"]
-    lat1, lon1, lat2, lon2 = topleft.lat, topleft.lon, bottomright.lat, bottomright.lon
-    height = round(Int, width * abs(lat2 - lat1) / abs(lon2 - lon1))
-    try
-      cachedir = joinpath(tempdir(), "arltoolkit", "cache")
-      filename = joinpath(cachedir, "map-$style-$lon1-$lat1-$lon2-$lat2-$width-$height.png")
-      if !isfile(filename)
+  lat1, lon1, lat2, lon2 = topleft.lat, topleft.lon, bottomright.lat, bottomright.lon
+  height = round(Int, width * abs(lat2 - lat1) / abs(lon2 - lon1))
+  try
+    cachedir == nothing && (cachedir = joinpath(tempdir(), "arltoolkit", "cache"))
+    filename = joinpath(cachedir, "map-$style-$lon1-$lat1-$lon2-$lat2-$width-$height.png")
+    @info filename
+    if isfile(filename)
+      @info "loading"
+      mapimg = FileIO.load(filename)
+    else
+      @info "downloading"
+      if "GEOAPIFY_APIKEY" ∈ keys(ENV)
+        apikey = ENV["GEOAPIFY_APIKEY"]
         mkpath(cachedir)
         download("https://maps.geoapify.com/v1/staticmap?style=$style&format=png&" *
           "area=rect:$lon1,$lat1,$lon2,$lat2&width=$width&height=$height&apiKey=$apikey",
           filename)
+        mapimg = FileIO.load(filename)
       end
-      mapimg = FileIO.load(filename)
-    catch ex
-      @warn "Could not download map: $ex"
     end
+  catch ex
+    @warn "Could not load map: $ex"
   end
   AOI(topleft, bottomright, mapimg)
 end
