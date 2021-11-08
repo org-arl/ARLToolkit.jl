@@ -42,12 +42,9 @@ function AOI(topleft::LLA{Float64}, bottomright::LLA{Float64}; style="osm-bright
   try
     cachedir == nothing && (cachedir = joinpath(tempdir(), "arltoolkit", "cache"))
     filename = joinpath(cachedir, "map-$style-$lon1-$lat1-$lon2-$lat2-$width-$height.png")
-    @info filename
     if isfile(filename)
-      @info "loading"
       mapimg = FileIO.load(filename)
     else
-      @info "downloading"
       if "GEOAPIFY_APIKEY" ∈ keys(ENV)
         apikey = ENV["GEOAPIFY_APIKEY"]
         mkpath(cachedir)
