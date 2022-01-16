@@ -10,3 +10,5 @@ To enable GPX support, additionally install:
 ```julia
 pkg> add https://github.com/scls19fr/GPX.jl
 ```
+
+And to enable Plots support, install `Plots.jl`.

@@ -1,6 +1,6 @@
 module TimingDiagrams
 
-using Plots
+using ..Plots: plot, plot!, annotate!, Shape, text
 using LinearAlgebra
 
 export timingdiagram, node!, tx!
