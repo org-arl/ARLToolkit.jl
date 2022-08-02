@@ -43,7 +43,7 @@ function read(filename, fmt, filters=nothing; limit=nothing)
     push!(df, NamedTuple(entry); cols=:union)
     limit !== nothing && size(df, 1) ≥ limit && break
   end
-  df.filename = PooledArray(df.filename)
+  "filename" ∈ names(df) && (df.filename = PooledArray(df.filename))
   df
 end
 
