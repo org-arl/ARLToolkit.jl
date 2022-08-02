@@ -55,7 +55,7 @@ end
 
 function Message(clazz)
   data -> begin
-    m = match(r"^(.+): ?\w+ ?\[(.*)\]:? ?(.*)$", data[:text])
+    m = match(r"^(?:\w+ >+ )?(.+): ?\w+ ?\[(.*)\]:? ?(.*)$", data[:text])
     m === nothing && return
     m[1] == clazz || return
     delete!(data, :text)
