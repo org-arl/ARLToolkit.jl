@@ -1,4 +1,6 @@
-import .Plots: @recipe, @series, RecipesBase
+import .Plots: @recipe, @series, RecipesBase, savefig
+
+export figure, @figure
 
 @recipe function plot(x::AOI{T}) where T
   tl = (x.topleft.lon, x.topleft.lat)
@@ -28,4 +30,23 @@ end
   @series begin
     [x.lon], [x.lat]
   end
+end
+
+function figure(f, name=nothing)
+  name == nothing && !isinteractive() && return nothing
+  p = f()
+  if name != nothing
+    mkpath(dirname(name))
+    savefig(p, name)
+  end
+  isinteractive() && display(p)
+  nothing
+end
+
+macro figure(name, f)
+  :(figure(() -> $(esc(f)), $(esc(name))))
+end
+
+macro figure(f)
+  :(figure(() -> $(esc(f))))
 end
