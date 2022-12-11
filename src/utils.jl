@@ -7,7 +7,7 @@ import TimeZones: localzone, ZonedDateTime, astimezone, @tz_str
 import DataFrames: DataFrame, leftjoin
 import OrderedCollections: OrderedDict
 
-export cached, AOI, distance, minute, minutes, second, seconds, dts, @dts_str, xleftjoin, closest
+export cached, @cached, AOI, distance, minute, minutes, second, seconds, dts, @dts_str, xleftjoin, closest
 export LLA, ZonedDateTime, geo2pos, pos2geo
 
 ### caching with JLD2 files
@@ -19,9 +19,14 @@ function cached(f, filename)
     end
   else
     df = f()
+    mkpath(dirname(filename))
     JLD2.@save filename df
     return df
   end
+end
+
+macro cached(filename, f)
+  :(cached(() -> $(esc(f)), $(esc(filename))))
 end
 
 ### Geodesy utils
