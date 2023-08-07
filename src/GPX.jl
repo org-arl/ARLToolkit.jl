@@ -2,10 +2,20 @@
 module GPXFile
 
 import ..GPX
-import DataFrames: DataFrame
+import DataFrames: DataFrame, insertcols!
 import Geodesy: LLA
 import TimeZones: astimezone, localzone
 import PooledArrays: PooledArray
+
+
+function segment2pts(segment; filename=filename, tz=localzone())
+    p = segment.points
+    df = DataFrame(time=[astimezone(p1.time, tz) for p1 ∈ p], location=[LLA(p1.lat, p1.lon) for p1 ∈ p])
+    df.filename = repeat(PooledArray([filename]), size(df, 1))
+    df
+end
+
+combine_segments(gpx_segments) = vcat([insertcols!(x, :segment_index=>i) for (i,x) in enumerate(gpx_segments)]...)
 
 function read(filename; tz=localzone())
   if isdir(filename)
@@ -17,11 +27,9 @@ function read(filename; tz=localzone())
   end
   gpx = GPX.read_gpx_file(filename)
   length(gpx.tracks) > 1 && throw(ErrorException("More than one tracks in GPX file"))
-  length(gpx.tracks[1].segments) > 1 && throw(ErrorException("More than one segments in GPX file"))
-  p = gpx.tracks[1].segments[1].points
-  df = DataFrame(time=[astimezone(p1.time, tz) for p1 ∈ p], location=[LLA(p1.lat, p1.lon) for p1 ∈ p])
-  df.filename = repeat(PooledArray([filename]), size(df, 1))
-  df
+  length(gpx.tracks[1].segments) > 1 && return segment2pts.(gpx.tracks[1].segments; filename=filename, tz=tz)|>combine_segments
+
+  gpx_segment2pts(gpx.tracks[1].segments[1]; filename=filename, tz=tz)
 end
 
 function read(filenames::AbstractVector)
