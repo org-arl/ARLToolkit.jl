@@ -6,7 +6,6 @@ import DataFrames: DataFrame
 import Geodesy: LLA
 import TimeZones: astimezone, localzone
 import PooledArrays: PooledArray
-import DataFramesMeta:@transform!
 
 
 function segment2pts(segment; filename=filename, tz=localzone())
@@ -16,7 +15,7 @@ function segment2pts(segment; filename=filename, tz=localzone())
     df
 end
 
-combine_segments(gpx_segments) = vcat([@transform!(x,:segment_index=i) for (i,x) in enumerate(gpx_segments)]...)
+combine_segments(gpx_segments) = vcat([insertcols!(x, :segment_index=>i) for (i,x) in enumerate(gpx_segments)]...)
 
 function read(filename; tz=localzone())
   if isdir(filename)
