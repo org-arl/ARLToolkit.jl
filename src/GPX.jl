@@ -2,7 +2,7 @@
 module GPXFile
 
 import ..GPX
-import DataFrames: DataFrame
+import DataFrames: DataFrame, insertcols!
 import Geodesy: LLA
 import TimeZones: astimezone, localzone
 import PooledArrays: PooledArray
