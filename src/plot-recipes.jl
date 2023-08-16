@@ -26,6 +26,14 @@ end
   end
 end
 
+@recipe function plot(x::AbstractMatrix{<:LLA})
+  for col ∈ eachcol(x)
+    @series begin
+      [v.lon for v ∈ col], [v.lat for v ∈ col]
+    end
+  end
+end
+
 @recipe function plot(x::LLA)
   @series begin
     [x.lon], [x.lat]
