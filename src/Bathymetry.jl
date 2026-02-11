@@ -38,8 +38,8 @@ function read(dirname)
   data
 end
 
-function _bathy(s::Soundings, p; maxpts)
-  r = [norm(p .- x[1:2]) for x ∈ s]
+function _bathy(s::Soundings, p::LLA; maxpts)
+  r = [euclidean_distance(p, LLA(x[1], x[2])) for x ∈ s]
   ndx = sortperm(r)
   r = r[ndx]
   r[1] == 0.0 && return s[ndx[1]][3]
@@ -50,14 +50,14 @@ function _bathy(s::Soundings, p; maxpts)
   sum(d .* w) / sum(w)
 end
 
-bathy(s::Soundings, p::LLA; maxpts=100) = _bathy(s, (p.lon, p.lat); maxpts)
+bathy(s::Soundings, p::LLA; maxpts=100) = _bathy(s, p; maxpts)
 
 function bathy(s::Soundings, p1::LLA, p2::LLA; spacing=10.0, maxpts=100)
   d = euclidean_distance(p1, p2)
   n = round(Int, d / spacing)
   x = LinRange(p1.lon, p2.lon, n)
   y = LinRange(p1.lat, p2.lat, n)
-  DataFrame(range=LinRange(0, d, n), location=LLA.(y, x), depth=[_bathy(s, (x[i], y[i]); maxpts) for i ∈ 1:n])
+  DataFrame(range=LinRange(0, d, n), location=LLA.(y, x), depth=[_bathy(s, LLA(y[i], x[i]); maxpts) for i ∈ 1:n])
 end
 
 end # module
