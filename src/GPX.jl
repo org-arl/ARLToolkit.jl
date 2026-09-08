@@ -8,7 +8,7 @@ import TimeZones: astimezone, localzone
 import PooledArrays: PooledArray
 
 
-function segment2pts(segment; filename=filename, tz=localzone())
+function segment2pts(segment; filename, tz=localzone())
     p = segment.points
     df = DataFrame(time=[astimezone(p1.time, tz) for p1 ∈ p], location=[LLA(p1.lat, p1.lon) for p1 ∈ p])
     df.filename = repeat(PooledArray([filename]), size(df, 1))
@@ -23,17 +23,17 @@ function read(filename; tz=localzone())
     for f ∈ readdir(filename; join=true)
       endswith(lowercase(f), ".gpx") && push!(filenames, f)
     end
-    return read(filenames)
+    return read(filenames; tz)
   end
   gpx = GPX.read_gpx_file(filename)
   length(gpx.tracks) > 1 && throw(ErrorException("More than one tracks in GPX file"))
-  length(gpx.tracks[1].segments) > 1 && return segment2pts.(gpx.tracks[1].segments; filename=filename, tz=tz)|>combine_segments
+  length(gpx.tracks[1].segments) > 1 && return segment2pts.(gpx.tracks[1].segments; filename, tz)|>combine_segments
 
-  gpx_segment2pts(gpx.tracks[1].segments[1]; filename=filename, tz=tz)
+  segment2pts(gpx.tracks[1].segments[1]; filename, tz)
 end
 
-function read(filenames::AbstractVector)
-  df = vcat(read.(filenames)...)
+function read(filenames::AbstractVector; tz=localzone())
+  df = vcat(read.(filenames; tz)...)
   df.filename = PooledArray(df.filename)
   sort!(df, :time)
 end
