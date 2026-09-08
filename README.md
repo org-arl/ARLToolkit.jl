@@ -11,4 +11,6 @@ To enable GPX support, additionally install:
 pkg> add https://github.com/scls19fr/GPX.jl
 ```
 
+KML and KMZ files are supported out of the box via `KML.read`.
+
 And to enable Plots support, install `Plots.jl`.

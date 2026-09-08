@@ -2,7 +2,7 @@ module ARLToolkit
 
 using Requires
 
-export AIS, CTD, Logs, Bathymetry, BLAS, GPXFile
+export AIS, CTD, Logs, Bathymetry, BLAS, GPXFile, KML
 export UnetLogs, bathy
 
 include("utils.jl")
@@ -11,6 +11,7 @@ include("CTD.jl")
 include("Logs.jl")
 include("Bathymetry.jl")
 include("BLAS.jl")
+include("KML.jl")
 
 import .Logs: UnetLogs
 import .Bathymetry: bathy
