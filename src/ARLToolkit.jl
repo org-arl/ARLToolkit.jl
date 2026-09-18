@@ -2,7 +2,7 @@ module ARLToolkit
 
 using Requires
 
-export AIS, CTD, Logs, Bathymetry, BLAS, GPXFile, KML
+export AIS, CTD, Logs, Bathymetry, BLAS, GPXFile, KML, HiDAQ
 export UnetLogs, bathy
 
 include("utils.jl")
@@ -20,6 +20,7 @@ function __init__()
   @eval Base.show(io::IO, x::LLA) = prettyprint(io, x)
   @eval Base.print(io::IO, x::ZonedDateTime) = prettyprint(io, x)
   @require GPX="b55ef746-885f-40a4-ab22-c8118be08013" include("GPX.jl")
+  @require SignalAnalysis="df1fea92-c066-49dd-8b36-eace3378ea47" include("HiDAQ.jl")
   @require Plots="91a5bcdd-55d7-5caf-9e0b-520d859cae80" begin
     include("plot-recipes.jl")
     include("TimingDiagrams.jl")

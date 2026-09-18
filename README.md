@@ -13,4 +13,6 @@ pkg> add https://github.com/scls19fr/GPX.jl
 
 KML and KMZ files are supported out of the box via `KML.read`.
 
+To read HiDAQ recordings as signals via `HiDAQ.read`, install and load `SignalAnalysis.jl`.
+
 And to enable Plots support, install `Plots.jl`.
